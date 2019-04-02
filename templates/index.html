@@ -1,0 +1,45 @@
+<<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>CSV project</title>
+  </head>
+  <body>
+    hello world!!! i am alive
+    <button onclick="myFunction()">Run App</button>
+    <p id="dropdownBoxCSV"></p>
+    <script>
+    function myFunction() {
+    var data = null;
+
+var xhr = new XMLHttpRequest();
+xhr.withCredentials = true;
+
+xhr.addEventListener("readystatechange", function () {
+  if (this.readyState === 4) {
+    console.log(this.responseText);
+
+    var data = this.responseText;
+    data = JSON.parse(data);
+    console.log(data);
+    var i;
+    var htmlCode = "Select the CSV from the drop down <select>"
+for (i = 0; i < data[0].list.length; i++) {
+  console.log(data[0].list[i]);
+  htmlCode += "<option value=\""+data[0].list[i]+"\">"+data[0].list[i]+"</option>";
+}
+htmlCode +="</select>";
+document.getElementById("dropdownBoxCSV").innerHTML =  htmlCode;
+
+  }
+});
+
+xhr.open("GET", "http://localhost:5000/apiListCSV");
+xhr.setRequestHeader("cache-control", "no-cache");
+
+
+xhr.send(data);
+}
+    </script>
+  </body>
+</html>
