@@ -84,7 +84,7 @@ xhr.addEventListener("readystatechange", function () {
 });
 var csvFileName = document.getElementById('csvName').value;
 //console.log(csvFileName);
-xhr.open("GET", "http://localhost:5000/csv?csvName="+csvFileName);
+xhr.open("GET", "http://ec2-13-59-33-181.us-east-2.compute.amazonaws.com:5000/csv?csvName="+csvFileName);
 xhr.setRequestHeader("cache-control", "no-cache");
 
 xhr.send(data);
