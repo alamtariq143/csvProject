@@ -1,14 +1,31 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
     <title>CSV project</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js" integrity="sha384-xrRywqdh3PHs8keKZN+8zzc5TX0GRTLCcmivcbNJWm2rs5C8PRhcEn3czEjhAO9o" crossorigin="anonymous"></script>
   </head>
   <body>
-    hello world!!! i am alive
-    <button onclick="myFunction()">Run App</button>
-    <p id="dropdownBoxCSV"></p>
+
+
+    <div class="jumbotron jumbotron-fluid">
+      <div class="container">
+        <h1 class="display-4">CSV Extractor</h1>
+        <p class="lead">
+          <button onclick="myFunction()">Run App</button>
+          <p id="dropdownBoxCSV"></p>
+          <p id="CSVColAsk"></p>
+          <table id="excelDataTable" border="1">
+        </p>
+      </div>
+    </div>
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script>
+    var myList;
     function myFunction() {
     var data = null;
 
@@ -21,18 +38,25 @@ xhr.addEventListener("readystatechange", function () {
 
     var data = this.responseText;
     data = JSON.parse(data);
-    console.log(data);
+    //console.log(data);
     var i;
-    var htmlCode = "Select the CSV from the drop down <select>"
+    var htmlCode = "Select the CSV from the drop down <select id='csvName'>"
 for (i = 0; i < data[0].list.length; i++) {
-  console.log(data[0].list[i]);
+  //console.log(data[0].list[i]);
   htmlCode += "<option value=\""+data[0].list[i]+"\">"+data[0].list[i]+"</option>";
 }
-htmlCode +="</select>";
+htmlCode +="</select><button onclick='doRunTable()'>Run App</button>";
 document.getElementById("dropdownBoxCSV").innerHTML =  htmlCode;
 
   }
 });
+
+
+
+
+
+
+
 
 xhr.open("GET", "http://localhost:5000/apiListCSV");
 xhr.setRequestHeader("cache-control", "no-cache");
@@ -40,6 +64,136 @@ xhr.setRequestHeader("cache-control", "no-cache");
 
 xhr.send(data);
 }
+
+
+function doRunTable() {
+  //console.log("yo it works");
+  var data = null;
+
+var xhr = new XMLHttpRequest();
+xhr.withCredentials = true;
+
+xhr.addEventListener("readystatechange", function () {
+  if (this.readyState === 4) {
+    var data = this.responseText;
+    data = JSON.parse(data);
+    //console.log(data.results);
+    myList = data.results;
+    buildHtmlTable('#excelDataTable');
+  }
+});
+var csvFileName = document.getElementById('csvName').value;
+//console.log(csvFileName);
+xhr.open("GET", "http://localhost:5000/csv?csvName="+csvFileName);
+xhr.setRequestHeader("cache-control", "no-cache");
+
+xhr.send(data);
+}
+
+
+
+
+
+// Builds the HTML Table out of myList.
+function buildHtmlTable(selector) {
+  $(selector).empty();
+  var columns = addAllColumnHeaders(myList, selector);
+  //console.log(columns);
+  var htmlCode = "Select all the columns needed to be shown<br/>"
+for (i = 0; i < columns.length; i++) {
+//console.log(columns[i]);
+//htmlCode += "<option value=\""+columns[i]+"\">"+columns[i]+"</option>";
+htmlCode +="<input type='checkbox' id=\""+columns[i]+"\">"+columns[i]+"<br/>"
+}
+htmlCode +="<button onclick='CSVColAskToDisplay(\"#excelDataTable\")'>Show only selected col</button>";
+document.getElementById("CSVColAsk").innerHTML =  htmlCode;
+
+  for (var i = 0; i < myList.length; i++) {
+    var row$ = $('<tr/>');
+    for (var colIndex = 0; colIndex < columns.length; colIndex++) {
+      var cellValue = myList[i][columns[colIndex]];
+      if (cellValue == null) cellValue = "";
+      row$.append($('<td/>').html(cellValue));
+    }
+    $(selector).append(row$);
+  }
+}
+
+function CSVColAskToDisplay(selector){
+
+  //console.log("something");
+  var columns = addAllColumnHeaders(myList, selector);
+
+  var columnSetNewCheckedOnes = [];
+
+  for (i = 0; i < columns.length; i++) {
+  //console.log(columns[i]);
+  //htmlCode += "<option value=\""+columns[i]+"\">"+columns[i]+"</option>";
+    if(document.getElementById(columns[i]).checked == true)
+    {
+        //console.log(columns[i]);
+        columnSetNewCheckedOnes.push(columns[i]);
+    }
+  }
+  //console.log(columnSetNewCheckedOnes);
+  var headerTr$ = $('<tr/>');
+  for (var i = 0; i < columns.length; i++) {
+    var rowHash = columns[i];
+
+    //console.log(rowHash);
+        if(columnSetNewCheckedOnes.includes(rowHash))
+        {
+            headerTr$.append($('<th/>').html(rowHash));
+
+        }
+  }
+  $(selector).empty();
+  $(selector).append(headerTr$);
+
+  for (var i = 0; i < myList.length; i++) {
+    var row$ = $('<tr/>');
+    var keyList = Object.keys(myList[i]);
+    for (var colIndex = 0; colIndex < columns.length; colIndex++) {
+
+        if(columnSetNewCheckedOnes.includes(keyList[colIndex]))
+        {
+          var keyToValue = keyList[colIndex];
+          var cellValue = myList[i][keyToValue];
+          if (cellValue == null) cellValue = "";
+          row$.append($('<td/>').html(cellValue));
+
+        }
+
+
+    }
+    $(selector).append(row$);
+  }
+
+
+
+}
+
+// Adds a header row to the table and returns the set of columns.
+// Need to do union of keys from all records as some records may not contain
+// all records.
+function addAllColumnHeaders(myList, selector) {
+  var columnSet = [];
+  var headerTr$ = $('<tr/>');
+
+  for (var i = 0; i < myList.length; i++) {
+    var rowHash = myList[i];
+    for (var key in rowHash) {
+      if ($.inArray(key, columnSet) == -1) {
+        columnSet.push(key);
+        headerTr$.append($('<th/>').html(key));
+      }
+    }
+  }
+  $(selector).append(headerTr$);
+
+  return columnSet;
+}
+
     </script>
   </body>
 </html>

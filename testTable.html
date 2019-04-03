@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>test</title>
+  </head>
+  <body onLoad="buildHtmlTable('#excelDataTable')">
+  <table id="excelDataTable" border="1">
+  </table>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script type="text/javascript">
+      var myList = [
+        {
+            "GroupName": "System Administrators",
+            "Groupcode": "sysadmin",
+            "GroupOwner": 13456,
+            "GroupCategoryID": 100
+        },
+        {
+            "GroupName": "1st Grade Teachers",
+            "Groupcode": "1stgrade",
+            "GroupOwner": "",
+            "GroupCategoryID": 104
+        },
+        {
+            "GroupName": "2nd Grade Teachers",
+            "Groupcode": "2nsgrade",
+            "GroupOwner": 13561,
+            "GroupCategoryID": 105
+        },
+        {
+            "GroupName": "Independence High Teachers",
+            "Groupcode": "HS Teachers",
+            "GroupOwner": "",
+            "GroupCategoryID": 101
+        },
+        {
+            "GroupName": "3rd Grade Teachers",
+            "Groupcode": "3rdgrade",
+            "GroupOwner": 13562,
+            "GroupCategoryID": 106
+        },
+        {
+            "GroupName": "Guidance Department",
+            "Groupcode": "guidance",
+            "GroupOwner": "",
+            "GroupCategoryID": 107
+        },
+        {
+            "GroupName": "Independence Math Teachers",
+            "Groupcode": "HS Math",
+            "GroupOwner": 13660,
+            "GroupCategoryID": 108
+        },
+        {
+            "GroupName": "Independence English Teachers",
+            "Groupcode": "HS English",
+            "GroupOwner": 13661,
+            "GroupCategoryID": 109
+        },
+        {
+            "GroupName": "John Glenn Middle Teachers",
+            "Groupcode": "MS Teachers",
+            "GroupOwner": 13458,
+            "GroupCategoryID": 102
+        },
+        {
+            "GroupName": "John Glenn 8th Grade Teachers",
+            "Groupcode": "8thgrade",
+            "GroupOwner": "",
+            "GroupCategoryID": 110
+        },
+        {
+            "GroupName": "Middle School Parents",
+            "Groupcode": "MS Parents",
+            "GroupOwner": 18001,
+            "GroupCategoryID": 113
+        },
+        {
+            "GroupName": "Liberty Elementary Teachers",
+            "Groupcode": "Elem Teachers",
+            "GroupOwner": 13559,
+            "GroupCategoryID": 103
+        },
+        {
+            "GroupName": "High School Parents",
+            "Groupcode": "HS Parents",
+            "GroupOwner": 18002,
+            "GroupCategoryID": 114
+        },
+        {
+            "GroupName": "John Glenn 7th Grade Teachers",
+            "Groupcode": "7thgrade",
+            "GroupOwner": 13452,
+            "GroupCategoryID": 111
+        },
+        {
+            "GroupName": "Elementary Parents",
+            "Groupcode": "Elem Parents",
+            "GroupOwner": "",
+            "GroupCategoryID": 112
+        }
+    ];
+
+      // Builds the HTML Table out of myList.
+      function buildHtmlTable(selector) {
+        var columns = addAllColumnHeaders(myList, selector);
+
+        for (var i = 0; i < myList.length; i++) {
+          var row$ = $('<tr/>');
+          for (var colIndex = 0; colIndex < columns.length; colIndex++) {
+            var cellValue = myList[i][columns[colIndex]];
+            if (cellValue == null) cellValue = "";
+            row$.append($('<td/>').html(cellValue));
+          }
+          $(selector).append(row$);
+        }
+      }
+
+      // Adds a header row to the table and returns the set of columns.
+      // Need to do union of keys from all records as some records may not contain
+      // all records.
+      function addAllColumnHeaders(myList, selector) {
+        var columnSet = [];
+        var headerTr$ = $('<tr/>');
+
+        for (var i = 0; i < myList.length; i++) {
+          var rowHash = myList[i];
+          for (var key in rowHash) {
+            if ($.inArray(key, columnSet) == -1) {
+              columnSet.push(key);
+              headerTr$.append($('<th/>').html(key));
+            }
+          }
+        }
+        $(selector).append(headerTr$);
+
+        return columnSet;
+      }
+    </script>
+  </body>
+</html>
