@@ -45,7 +45,7 @@ for (i = 0; i < data[0].list.length; i++) {
   //console.log(data[0].list[i]);
   htmlCode += "<option value=\""+data[0].list[i]+"\">"+data[0].list[i]+"</option>";
 }
-htmlCode +="</select><button onclick='doRunTable()'>Run App</button>";
+htmlCode +="</select><button onclick='doRunTable()'>Run CSV Table</button><br/> Please note: for first time, complete CSV table will be shown, then after selecting columns and clicking on \"show selected col\" to show required columns." ;
 document.getElementById("dropdownBoxCSV").innerHTML =  htmlCode;
 
   }
